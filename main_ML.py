@@ -20,8 +20,8 @@ def start_positions():
 
 def draw():
     # Delay
-    if learned:
-        pg.time.delay(1000)
+    #if learned:
+        #pg.time.delay(1000)
     # else:
     #     pg.time.delay(1000)  # DEBUG
 
@@ -59,8 +59,8 @@ def apply_action(action):
         y_direction = 1
         player_view = 'front'
 
-    new_x = player_rect.x + player_rect.width/2 * x_direction
-    new_y = player_rect.y + player_rect.height/2 * y_direction
+    new_x = player_rect.x + player_rect.width * x_direction
+    new_y = player_rect.y + player_rect.height * y_direction
 
     if 0 < new_x < width - player_rect.width:
         player_rect.x = new_x
@@ -84,10 +84,10 @@ def draw_message(text, color):
     message = font.render(text, True, color)
     screen.blit(message, (350, 150))
     pg.display.flip()
-    pg.time.delay(4000)
+    pg.time.delay(1000)
 
 images_dict = {
-    'bg': pg.image.load('img/Background.png'),
+    'bg': pg.image.load('img/Background2.png'),
     'player': {
         'rear': pg.image.load('img/cab_rear.png'),
         'left': pg.image.load('img/cab_left.png'),
@@ -136,8 +136,8 @@ Q_tabel = defaultdict(lambda: [0, 0, 0, 0])
 
 learning_rate = 0.9
 discount_factor = 0.9
-epsilon = 0.1
-# epsilon = -1
+# epsilon = 0.1
+epsilon = -1
 
 
 def choose_action(state):
@@ -167,7 +167,8 @@ def make_step():
         episode_end = True
 
     if parking_rect.contains(player_rect):
-        reward = 100
+        reward = 1000
+        print("Win")
         episode_end = True
         success = True
 
@@ -184,7 +185,7 @@ learned = False
 draw()
 
 # Основний цикл навчання
-num_episodes = 3000
+num_episodes = 300
 max_steps = 50
 
 for episode in range(num_episodes):
@@ -195,12 +196,12 @@ for episode in range(num_episodes):
         if episode_end:
             print("Win? -", success)
             break
-learned = True
+# learned = True
 print(Q_tabel)
 
 draw_message("Таксі навчилося!", pg.Color("blue"))
 ########################################################################
-
+FPS = 20
 timer = pg.time.Clock()
 run = True
 while run:
@@ -216,19 +217,26 @@ while run:
             run = False
 
     # Поновлення
-    current_state = (player_rect.x, player_rect.y)
-    action = choose_action(current_state)
-    apply_action(action)
+    # current_state = (player_rect.x, player_rect.y)
+    # action = choose_action(current_state)
+    # apply_action(action)
 
     if is_crash():
         print("IS CRASH")
-        start_positions()
-        continue
+        # start_positions()
+        # run = False
+        # continue
+        player_view = 'rear'
+        player_rect.x = 300
+        player_rect.y = 300
 
     if parking_rect.contains(player_rect):
         draw_message("Перермога!!!", pg.Color('green'))
-        start_positions()
-        continue
+        player_view = 'rear'
+        player_rect.x = 300
+        player_rect.y = 300
+        # start_positions()
+        # continue
 
     if player_rect.colliderect(passenger_rect):
         passenger_rect.x, passenger_rect.y = player_rect.x, player_rect.y
